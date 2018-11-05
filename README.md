@@ -1,4 +1,4 @@
-# crate-br0
+# create-br0
 
 ## copy and paste
 
@@ -16,20 +16,46 @@ sudo ip link set br0 down
 sudo ip link delete br0 type bridge
 ```
 
+
+## enable STP 
+
+```bash
+sudo brctl stp br0 on
+
+```
+
+
 ## with help of command netctl start bridge
 
 ```bash
 sudo cp /etc/netctl/examples/bridge /etc/netctl/bridge
-sudo vim /etc/netctl/bridge
+sudo vi /etc/netctl/bridge
 # set your real phy network interface
 BindsToInterfaces=(enp0s25)
-# save file 
+
+# the bridge file should be
+
+cat <<EOF >/etc/netctl/bridge
+Description="Example Bridge connection"
+Interface=br0
+Connection=bridge
+BindsToInterfaces=(enp0s25)
+IP=dhcp
+## Ignore (R)STP and immediately activate the bridge
+SkipForwardingDelay=yes
+EOF
+
+
+# reenable service for exiting bridge
+sudo netctl reenable bridge
+
 # start bridge
 sudo netctl start bridge
 # check with command
 ip show addr # ip addr has change
 # make our bridge start on boot
 sudo netctl enable bridge
+
 ```
 
 ## networks settings via /etc/sysctl/
@@ -42,7 +68,10 @@ net.bridge.bridge-nf-call-arptables = 0
 net.ipv4.ip_forward = 1
 
 # activate w/o reboot
-sudo sysctl --system 
+sudo sysctl --system
+
+# check settings activate
+sudo sysctl -a |grep -E 'nf-call|net.ipv4.ip_forward'
 
 ```
 
