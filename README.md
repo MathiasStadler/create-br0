@@ -16,14 +16,12 @@ sudo ip link set br0 down
 sudo ip link delete br0 type bridge
 ```
 
-
-## enable STP 
+## enable STP
 
 ```bash
 sudo brctl stp br0 on
 
 ```
-
 
 ## with help of command netctl start bridge
 
@@ -45,6 +43,15 @@ IP=dhcp
 SkipForwardingDelay=yes
 EOF
 
+
+@TODO
+# from here
+https://wiki.debian.org/BridgeNetworkConnections
+bridge_stp off       # disable Spanning Tree Protocol
+bridge_waitport 0    # no delay before a port becomes available
+bridge_fd 0          # no forwarding delay
+bridge_ports none    # if you do not want to bind to any ports
+bridge_ports regex eth* # use a regular expression to define ports
 
 # reenable service for exiting bridge
 sudo netctl reenable bridge
@@ -92,5 +99,5 @@ sudo virsh net-list --all
 sudo virsh net-undefine vagrant-libvirt
 
 # start network
-sudo virsh net-start default 
+sudo virsh net-start default
 ```

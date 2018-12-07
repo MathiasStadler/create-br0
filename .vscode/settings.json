@@ -1,9 +1,19 @@
 {
     "cSpell.words": [
         "brctl",
+        "chmod",
         "hexdump",
+        "icmp",
+        "iptables",
+        "libvirt",
         "netctl",
+        "reenable",
         "sysctl",
-        "urandom"
+        "systemctl",
+        "systemd",
+        "uncomment",
+        "undefine",
+        "urandom",
+        "virsh"
     ]
 }
