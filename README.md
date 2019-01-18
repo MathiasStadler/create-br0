@@ -6,9 +6,9 @@
 sudo ip link add br0 type bridge
 # forward_delay 0 can also be specified here
 sudo ip link set br0 type bridge forward_delay 0
-echo "0" | sudo tee --append /sys/class/net/br0/bridge/stp_state
+echo "0" | sudo tee /sys/class/net/br0/bridge/stp_state
 sudo ip link set br0 up
-sudo  ip link set enp0s25 master br0
+sudo ip link set enp0s25 master br0
 
 
 sudo ip link set enp0s25 nomaster

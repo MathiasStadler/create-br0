@@ -23,6 +23,19 @@ https://jamielinux.com/docs/libvirt-networking-handbook/appendix/run-dnsmasq-wit
 
 # dnsmasq advance
 https://www.linux.com/learn/intro-to-linux/2018/2/advanced-dnsmasq-tips-and-tricks
+
+# tutorial bridge error
+http://www.microhowto.info/troubleshooting/troubleshooting_ethernet_bridging_on_linux.html
+
+# bridge tutorial
+https://backreference.org/2010/03/26/tuntap-interface-tutorial/
+
+# vm network bridge
+https://vincent.bernat.ch/en/blog/2017-linux-bridge-isolation
+
+# iptables explanation deutsche
+https://www.karlrupp.net/de/computer/nat_tutorial
+
 ```
 ## show all network
 
@@ -60,6 +73,11 @@ echo "dummy" | sudo tee /etc/modules-load.d/dummy.conf
 ```bash
 CUSTOM_BRIDGE_INTERFACE_NAME="virbr10-net"
 sudo ip link add $CUSTOM_BRIDGE_INTERFACE_NAME address $VIRBR10_DUMMY_MAC type dummy
+# set interace to listening or forwarding. Forwarding only if the kernel module ip_gre is loaded
+# ‘listening’ indicates that the STP implementation has not yet decided whether the port should enter the ‘forwarding’ or ‘blocked’ state
+# disabled’ indicates that the port is non-operational for some other reason
+sudo modprobe ip_gre
+sudo ip link set $CUSTOM_BRIDGE_INTERFACE_NAME up
 ip addr show $CUSTOM_BRIDGE_INTERFACE_NAME
 ```
 
@@ -81,6 +99,7 @@ sudo brctl stp $CUSTOM_BRIDGE_NAME on
 sudo brctl addif $CUSTOM_BRIDGE_NAME $CUSTOM_BRIDGE_INTERFACE_NAME
 sudo ip address add 203.0.113.1/24 dev $CUSTOM_BRIDGE_NAME broadcast 203.0.113.255
 # sudo ip address add 2001:db8:aa::/64 dev virbr10
+sudo ip link set dev $CUSTOM_BRIDGE_NAME up
 sudo ip addr show $CUSTOM_BRIDGE_NAME
 ```
 
@@ -415,7 +434,7 @@ https://kashyapc.fedorapeople.org/virt/create-a-new-libvirt-bridge.txt
 https://avdv.github.io/libvirt/formatnetwork.html
 ```
 
-sudo ip route add 203.0.113.0/24 via 192.168.178.33
+sudo ip -4 route add 203.0.113.0/24 via 192.168.178.101
 
 sudo ip route del 203.0.113.0/24
 
@@ -423,5 +442,36 @@ sudo ip route del 203.0.113.0/24
 ## set default route 
 
 ```bash
-ip route add default via 203.0.113.1
+sudo ip route add default via 203.0.113.1
 ```
+
+## net
+
+```bash
+sudo ip -4 route add 203.0.113.0/24 dev virbr10
+
+
+sudo ip -4 route add 203.0.113.0/24 via 192.168.178.101 dev virbr10
+```
+
+## show interfaces state
+
+```bash
+brctl showstp virbr10
+```
+
+## show ebtables status
+
+```bash
+sudo ebtables -t filter -L
+sudo ebtables -t nat -L
+sudo ebtables -t broute -L
+```
+
+sudo sysctl -w net.ipv4.conf.all.proxy_arp=1
+
+## masquerade to internet
+https://serverfault.com/questions/845923/bridge-interface-for-kvm-vms-with-access-to-internet
+sudo iptables --table nat --append POSTROUTING --out-interface enp0s25 -j MASQUERADE
+sudo iptables --insert FORWARD --in-interface virbr10 -j ACCEPT
+
